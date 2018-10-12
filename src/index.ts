@@ -3,6 +3,7 @@ import compose, { middlewareFunction } from './compose';
 import { uuid, invariant } from './lib';
 import Request from './request';
 import Response from './response';
+import Client from "./client";
 
 export default class Application extends EventEmitter {
   domain: string;
@@ -11,6 +12,7 @@ export default class Application extends EventEmitter {
   request: Request;
   response: Response;
   emitters: EventEmitter;
+  _client: Client;
 
   constructor({ domain }) {
     super();
@@ -19,6 +21,11 @@ export default class Application extends EventEmitter {
     this.context = {};
     this.request = new Request();
     this.response = new Response();
+    this._client = new Client(this);
+  }
+
+  get client() {
+    return this._client;
   }
 
   use(fn: middlewareFunction) {
