@@ -11,9 +11,11 @@
 export type middlewareFunction = (
   ctx?: object,
   next?: middlewareFunction
-) => any;
+) => Promise<any>;
 
-export default function compose(middleware: middlewareFunction[]) {
+export default function compose(
+  middleware: middlewareFunction[]
+) {
   if (!Array.isArray(middleware))
     throw new TypeError('Middleware stack must be an array!');
   for (const fn of middleware) {
@@ -27,7 +29,10 @@ export default function compose(middleware: middlewareFunction[]) {
    * @api public
    */
 
-  return function(context: object, next: middlewareFunction) {
+  return function(
+    context?: object,
+    next?: middlewareFunction
+  ): Promise<any> {
     // last called middleware #
     let index = -1;
     return dispatch(0);
@@ -35,7 +40,7 @@ export default function compose(middleware: middlewareFunction[]) {
       if (i <= index)
         return Promise.reject(new Error('next() called multiple times'));
       index = i;
-    let fn: middlewareFunction = middleware[i];
+      let fn: middlewareFunction | undefined = middleware[i];
       if (i === middleware.length) fn = next;
       if (!fn) return Promise.resolve();
       try {
