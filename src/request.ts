@@ -1,17 +1,9 @@
 // test https://runkit.com/boycgit/ette
 
 import Url = require('url-parse');
-import { only, CONTENT_TYPE } from './lib';
+import { only, CONTENT_TYPE, HTTP_METHOD } from './lib';
 const stringify = Url.qs.stringify;
 const parser = Url.qs.parse;
-
-export enum HTTP_METHOD {
-  GET,
-  POST,
-  PUT,
-  DELETE
-}
-
 
 
 interface RequestConfig {
@@ -42,6 +34,12 @@ constructor(config?: RequestConfig) {
   get host():string{
       return this.parsed.host;
   }
+  set host(val:string){
+      if(!!val){
+          this.parsed.set('host', val);
+      }
+  }
+
   get hostname(){
       return this.parsed.hostname;
   }

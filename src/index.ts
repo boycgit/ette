@@ -44,9 +44,9 @@ export default class Application extends EventEmitter {
     const fn = compose(this.middleware);
     if (!this.getListeners('error').length) this.on('error', this.onerror);
 
-    return req => {
+    return (req, onData) => {
       const ctx = this.createContext(req);
-      return this.handleRequest(ctx, fn);
+      return this.handleRequest(ctx, fn, onData);
     };
   }
 
@@ -56,10 +56,10 @@ export default class Application extends EventEmitter {
    * @api private
    */
 
-  handleRequest(ctx, fnMiddleware) {
+  handleRequest(ctx, fnMiddleware, onData?) {
     const response = ctx.response;
     response.statusCode = 404;
-    const handleResponse = () => respond(ctx);
+    const handleResponse = onData? onData : () => respond(ctx);
     return fnMiddleware(ctx)
       .then(handleResponse)
       .catch(this.onerror);
@@ -67,7 +67,7 @@ export default class Application extends EventEmitter {
 
   /**
    * Initialize a new context per request
-   * and store req as attr to context 
+   * and store req as attr to context
    * @param {*} req
    * @returns
    * @memberof Application
