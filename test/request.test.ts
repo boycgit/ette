@@ -27,10 +27,10 @@ describe('[Request] 构造函数 - 构造函数', () => {
 
   afterEach(() => {
     expect(req.method).toBe('GET');
-    expect(req.type).toBe('TEXT');
+    expect(req.type).toBe('JSON');
     expect(req.idempotent).toBeTruthy();
   });
-  test('默认 Request 对象的 url 为空，GET 方法，请求类型为 TEXT', () => {
+  test('默认 Request 对象的 url 为空，GET 方法，请求类型为 JSON', () => {
     req = new Request();
     expect(req.url).toBe('');
   });
@@ -185,7 +185,7 @@ describe('[Request] 方法 - toJSON', () => {
     expect(req.toJSON()).toEqual({
       url: url,
       method: 'GET',
-      type: 'TEXT'
+      type: 'JSON'
     });
   });
 });

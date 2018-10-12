@@ -17,7 +17,7 @@ export default class Request {
   _type: CONTENT_TYPE;
 
   constructor(config?: RequestConfig) {
-    const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.TEXT } =
+    const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.JSON } =
       config || {};
     this.parsed = new Url(url, {}, true);
 

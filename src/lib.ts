@@ -111,7 +111,6 @@ export function isJSON(item): boolean {
 export function getBodyType(body): CONTENT_TYPE {
   if (!isExist(body, false)) return CONTENT_TYPE.TEXT;
   if ('string' == typeof body) return CONTENT_TYPE.TEXT;
-  if (Buffer.isBuffer(body)) return CONTENT_TYPE.BINARY;
   return CONTENT_TYPE.JSON;
 }
 
@@ -122,13 +121,10 @@ export function getByteLen(body: string | Buffer): number {
 
   switch (type) {
     case CONTENT_TYPE.JSON:
-      length = Buffer.byteLength(JSON.stringify(body));
+      length = JSON.stringify(body).length;
       break;
 
     case CONTENT_TYPE.TEXT:
-      length = Buffer.byteLength(body);
-
-    case CONTENT_TYPE.BINARY:
       length = body.length;
     default:
       length = 0;
@@ -136,7 +132,6 @@ export function getByteLen(body: string | Buffer): number {
   }
   return length;
 }
-
 
 /**
  * Safe decodeURIComponent, won't throw any error.
