@@ -180,7 +180,7 @@ describe('[Request] 属性 - 更改各种属性', () => {
 
 describe('[Request] 方法 - toJSON', () => {
   test('返回 url, method, type 三个字段', () => {
-    const url = chance.url();
+    const url = chance.url().replace(/^http(s)?\:/, '');
     const req = new Request({ url });
     expect(req.toJSON()).toEqual({
       url: url,

@@ -5,6 +5,7 @@ import { only, CONTENT_TYPE, HTTP_METHOD, invariant } from './lib';
 const stringify = Url.qs.stringify;
 const parser = Url.qs.parse;
 
+const regProtocol = /^http(s)?\:/g;
 interface RequestConfig {
   url?: string;
   method?: HTTP_METHOD;
@@ -19,8 +20,9 @@ export default class Request {
   constructor(config?: RequestConfig) {
     const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.JSON } =
       config || {};
-    this.parsed = new Url(url, {}, true);
 
+      // 为了方便统一，需要将输入的 url 的 protocol 删除掉
+    this.parsed = new Url(url.replace(regProtocol, ''), {}, true);
     const methodName = method.toUpperCase() as HTTP_METHOD;
     invariant(
       HTTP_METHOD[methodName],
@@ -63,7 +65,8 @@ export default class Request {
   }
 
   get url(): string {
-    return this.parsed.toString();
+    var str = this.parsed.toString();
+    return !!this.host && !str.startsWith('//') ? `//${str}` : str;
   }
   set url(val) {
     this.parsed = new Url(val, {}, true);

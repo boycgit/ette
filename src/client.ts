@@ -1,9 +1,9 @@
 import EventEmitter = require('wolfy87-eventemitter');
 import Application from './index';
 import Request from './request';
+import Response from './response';
 
-import { HTTP_METHOD, CONTENT_TYPE } from './lib';
-
+import { HTTP_METHOD, CONTENT_TYPE, invariant } from './lib';
 
 const METHODS_LOWERCASE: string[] = Object.keys(HTTP_METHOD).map(k =>
   HTTP_METHOD[k as any].toLowerCase()
@@ -13,10 +13,11 @@ export default class Client extends EventEmitter {
   domain: string;
   app: Application;
 
-  constructor(app: Application) {
+  constructor(app?: Application) {
     super();
-    this.domain = app.domain;
-    this.app = app;
+    invariant(!!app, 'param `app` should be exist');
+    this.app = app as Application;
+    this.domain = this.app.domain;
   }
 }
 
@@ -30,10 +31,14 @@ METHODS_LOWERCASE.forEach(function(methodName) {
 
     request.host = this.domain; // 设置 domain
 
-    return new Promise((resolve) =>{
-        this.app.emit('request', request, (ctx)=>{
-            resolve(ctx.response.toJSON());
-        }); // 触发 ‘request’ 请求
+    return new Promise(resolve => {
+      // 触发 ‘request’ 请求
+      this.app.emit('request', request, ctx => {
+        const res =
+          (ctx && ctx.response) ||
+          new Response({ body: 'ctx.response is not exist' });
+        resolve(res.toJSON());
+      });
     });
   };
 });

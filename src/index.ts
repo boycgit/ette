@@ -3,7 +3,11 @@ import compose, { middlewareFunction } from './compose';
 import { uuid, invariant } from './lib';
 import Request from './request';
 import Response from './response';
-import Client from "./client";
+import Client from './client';
+
+interface AppConfig {
+  domain?: string;
+}
 
 export default class Application extends EventEmitter {
   domain: string;
@@ -14,12 +18,12 @@ export default class Application extends EventEmitter {
   emitters: EventEmitter;
   _client: Client;
 
-  constructor({ domain }) {
+  constructor(config?: AppConfig) {
     super();
-    this.domain = domain || uuid(8, 16); // 16 位进制，8 位字符
+    const { domain = '' } = config || {};
+    this.domain = domain || uuid(8, 16).toLowerCase(); // 16 位进制，8 位字符
     this.middleware = [];
     this.context = {};
-    this.request = new Request();
     this.response = new Response();
     this._client = new Client(this);
   }
@@ -51,24 +55,23 @@ export default class Application extends EventEmitter {
     const fn = compose(this.middleware);
     if (!this.getListeners('error').length) this.on('error', this.onerror);
 
-    return (req, onData) => {
+    return (req: Request, lastMiddleware: middlewareFunction) => {
       const ctx = this.createContext(req);
-      return this.handleRequest(ctx, fn, onData);
+      return this.handleRequest(ctx, fn, lastMiddleware);
     };
   }
 
   /**
    * Handle request in callback.
-   *
+   * generally  call lastMiddleware function to send response，please refer `client.ts` for more detail
    * @api private
    */
 
-  handleRequest(ctx, fnMiddleware, onData?) {
+  handleRequest(ctx, fnMiddleware, lastMiddleware: middlewareFunction) {
     const response = ctx.response;
     response.statusCode = 404;
-    const handleResponse = onData? onData : () => respond(ctx);
     return fnMiddleware(ctx)
-      .then(handleResponse)
+      .then(lastMiddleware)
       .catch(this.onerror);
   }
 
@@ -79,9 +82,9 @@ export default class Application extends EventEmitter {
    * @returns
    * @memberof Application
    */
-  createContext(req) {
+  createContext(req: Request) {
     const context = Object.create(this.context);
-    const request = (context.request = Object.create(this.request));
+    const request = (context.request = Object.create(req));
     const response = (context.response = Object.create(this.response));
     context.app = request.app = response.app = this;
     context.req = request.req = response.req = req;
@@ -98,7 +101,7 @@ export default class Application extends EventEmitter {
    * @api private
    */
 
-  onerror(err, ctx) {
+  onerror(err) {
     invariant(err instanceof Error, `non-error thrown: ${err}`);
 
     if (404 == err.status || err.expose) return;
@@ -110,15 +113,5 @@ export default class Application extends EventEmitter {
 
     // 触发error事件
     this.emit('error', err);
-    ctx.response.body = err; // 设置 body 内容
   }
-}
-
-/**
- * Response helper.
- */
-
-function respond(ctx) {
-  const { request, response } = ctx;
-  console.log(`request ${request.url}, get response: ${response.toJSON()}`);
 }
