@@ -46,7 +46,7 @@ describe('[Client] 方法 - 检查 verb() 返回值', () => {
 
         // 模拟中间件形态
         const fakeResponse = {
-          response: new Response({ status: 200 })
+          response: new Response({ status: 200 , body: 'hello world'})
         };
         new Promise(function(resolve) {
           resolve(fakeResponse);
@@ -55,7 +55,8 @@ describe('[Client] 方法 - 检查 verb() 返回值', () => {
 
       client[method]('/users/jscon', 'text').then(res => {
         expect(res.status).toBe(200);
-        expect(res.type).toBe('JSON');
+        expect(res.type).toBe('TEXT');
+        expect(res.body).toBe('hello world');
       }).catch(err => {
         console.log(err);
       });;

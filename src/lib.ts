@@ -12,18 +12,7 @@ export enum HTTP_METHOD {
   SUBSCRIBE = 'SUBSCRIBE'
 }
 
-export function requiredParam(param: string): never {
-  const requiredParamError = new Error(
-    `Required parameter, "${param}" is missing.`
-  );
-  // preserve original stack trace
-  if (typeof Error.captureStackTrace === 'function') {
-    Error.captureStackTrace(requiredParamError, requiredParam);
-  }
-  throw requiredParamError;
-}
-
-export function uuid(len: number, radix?: number) {
+export function uuid(len?: number, radix?: number) {
   var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split(
     ''
   );
@@ -74,42 +63,11 @@ export function invariant(check, message, scope = 'ette') {
 }
 
 /**
- * 判断对象是否存在
- * @param {*} val - 待判断的对象
- * @param {bool} andString - 也要考虑字符串的 'undefined' 和 'null' 情况
- */
-export function isExist(val: any, andString = true): boolean {
-  const result = typeof val !== 'undefined' && val !== null;
-
-  if (andString) {
-    return result && val !== 'undefined' && val !== 'null';
-  } else {
-    return result;
-  }
-}
-
-export function isJSON(item): boolean {
-  item = typeof item !== 'string' ? JSON.stringify(item) : item;
-
-  try {
-    item = JSON.parse(item);
-  } catch (e) {
-    return false;
-  }
-
-  if (typeof item === 'object' && item !== null) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
  * Check if `body` should be interpreted as json in ette
  */
 
 export function getBodyType(body): CONTENT_TYPE {
-  if (!isExist(body, false)) return CONTENT_TYPE.TEXT;
+  if (!body) return CONTENT_TYPE.TEXT;
   if ('string' == typeof body) return CONTENT_TYPE.TEXT;
   return CONTENT_TYPE.JSON;
 }
@@ -131,21 +89,4 @@ export function getByteLen(body: string | Buffer): number {
       break;
   }
   return length;
-}
-
-/**
- * Safe decodeURIComponent, won't throw any error.
- * If `decodeURIComponent` error happen, just return the original value.
- *
- * @param {String} text
- * @returns {String} URL decode original string.
- * @private
- */
-
-export function safeDecodeURIComponent(text: string) {
-  try {
-    return decodeURIComponent(text);
-  } catch (e) {
-    return text;
-  }
 }
