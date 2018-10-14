@@ -1,7 +1,8 @@
 // test https://runkit.com/boycgit/ette
 
-import Url = require('url-parse');
+import URLParse = require('url-parse'); // 引入命名空间
 import { only, CONTENT_TYPE, HTTP_METHOD, invariant } from './lib';
+const Url = require('url-parse');
 const stringify = Url.qs.stringify;
 const parser = Url.qs.parse;
 
@@ -13,7 +14,7 @@ interface RequestConfig {
 }
 
 export default class Request {
-  parsed: Url;
+  parsed: URLParse;
   _method: HTTP_METHOD;
   _type: CONTENT_TYPE;
 
@@ -21,7 +22,7 @@ export default class Request {
     const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.JSON } =
       config || {};
 
-      // 为了方便统一，需要将输入的 url 的 protocol 删除掉
+    // 为了方便统一，需要将输入的 url 的 protocol 删除掉
     this.parsed = new Url(url.replace(regProtocol, ''), {}, true);
     const methodName = method.toUpperCase() as HTTP_METHOD;
     invariant(

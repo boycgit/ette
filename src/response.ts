@@ -1,11 +1,7 @@
-import * as HttpStatus from 'http-status-codes';
-import {
-  only,
-  invariant,
-  getByteLen,
-  getBodyType,
-  CONTENT_TYPE
-} from './lib';
+// import * as HttpStatus from 'http-status-codes';
+import { only, invariant, getByteLen, getBodyType, CONTENT_TYPE } from './lib';
+
+const HttpStatus = require('http-status-codes');
 
 const getStatusText = HttpStatus.getStatusText;
 

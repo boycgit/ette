@@ -1,10 +1,10 @@
-import EventEmitter = require('wolfy87-eventemitter');
 import compose, { middlewareFunction } from './compose';
 import { uuid, invariant } from './lib';
 import Request from './request';
 import Response from './response';
 import Client from './client';
 
+const EventEmitter = require('wolfy87-eventemitter');
 interface AppConfig {
   domain?: string;
   autoListen?: boolean;
