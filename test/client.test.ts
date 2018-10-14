@@ -26,7 +26,7 @@ describe('[Client] 构造函数 - 构造函数', () => {
   });
 });
 
-describe.only('[Client] 方法 - 检查 verb() 返回值', () => {
+describe('[Client] 方法 - 检查 verb() 返回值', () => {
   let app, client;
 
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe.only('[Client] 方法 - 检查 verb() 返回值', () => {
 
   METHODS_LOWERCASE.forEach(method => {
     test(`支持 client.${method} 方法`, () => {
-
+      app.removeEvent('request'); // 先移除内置的 request 事件监听器
       app.on('request', (req, lastMiddleware) => {
         // console.log(req);
         expect(req.host).toBe(app.domain);
@@ -45,19 +45,51 @@ describe.only('[Client] 方法 - 检查 verb() 返回值', () => {
         expect(req.method).toBe(method.toUpperCase());
 
         // 模拟中间件形态
+        const fakeResponse = {
+          response: new Response({ status: 200 })
+        };
         new Promise(function(resolve) {
-          resolve({ response: new Response({ status: 200 }) });
+          resolve(fakeResponse);
         }).then(lastMiddleware);
       });
 
       client[method]('/users/jscon', 'text').then(res => {
         expect(res.status).toBe(200);
         expect(res.type).toBe('JSON');
-      });
+      }).catch(err => {
+        console.log(err);
+      });;
     });
   });
 
-  test('验证 client.get 方法返回 404 的场景', ()=>{
+  // test.only(`支持 client.get 方法`, () => {
+  //   app.removeEvent('request'); // 先移除内置的 request 事件监听器
+  //   app.on('request', (req, lastMiddleware) => {
+  //     // console.log(req);
+  //     expect(req.host).toBe(app.domain);
+  //     expect(req.url).toBe(`//${app.domain}/users/jscon`);
+  //     expect(req.type).toBe('TEXT');
+  //     expect(req.method).toBe('GET');
+
+  //     // 模拟中间件形态
+  //     const fakeResponse = {
+  //       response: new Response({ status: 200 })
+  //     };
+  //     new Promise(function(resolve) {
+  //       console.log(888, fakeResponse);
+  //       resolve(fakeResponse);
+  //     }).then(lastMiddleware);
+  //   });
+
+  //   client.get('/users/jscon', 'text').then(res => {
+  //     console.log('777', res);
+  //     expect(res.status).toBe(200);
+  //     expect(res.type).toBe('JSON');
+  //   });
+  // });
+
+  test('验证 client.get 等方法返回 404 的场景', () => {
+    app.removeEvent('request'); // 先移除内置的 request 事件监听器
     app.on('request', (req, lastMiddleware) => {
       // console.log(req);
       expect(req.host).toBe(app.domain);
@@ -66,7 +98,7 @@ describe.only('[Client] 方法 - 检查 verb() 返回值', () => {
       expect(req.method).toBe('GET');
 
       // 模拟中间件形态
-      new Promise(function (resolve) {
+      new Promise(function(resolve) {
         resolve();
       }).then(lastMiddleware);
     });
@@ -74,6 +106,8 @@ describe.only('[Client] 方法 - 检查 verb() 返回值', () => {
     client.get('/users/jscon', 'text').then(res => {
       expect(res.status).toBe(404);
       expect(res.type).toBe('JSON');
+    }).catch(err=>{
+      console.log(err);
     });
   });
 });

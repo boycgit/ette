@@ -7,6 +7,7 @@ import Client from './client';
 
 interface AppConfig {
   domain?: string;
+  autoListen?: boolean;
 }
 
 export default class Application extends EventEmitter {
@@ -15,20 +16,23 @@ export default class Application extends EventEmitter {
   context: object;
   request: Request;
   response: Response;
-  emitters: EventEmitter;
   _client: Client;
 
   constructor(config?: AppConfig) {
     super();
-    const { domain = '' } = config || {};
-    this.domain = domain || uuid(8, 16).toLowerCase(); // 16 位进制，8 位字符
+    const { autoListen = true } = config || {};
+    this.domain = (config && config.domain) || uuid(8, 16).toLowerCase(); // 不传入的话，默认 16 位进制，8 位字符
     this.middleware = [];
     this.context = {};
     this.response = new Response();
     this._client = new Client(this);
+
+    if (autoListen) {
+      this.listen(); // 默认开启监听
+    }
   }
 
-  get client() {
+  get client(): Client {
     return this._client;
   }
 
@@ -38,9 +42,10 @@ export default class Application extends EventEmitter {
     return this;
   }
 
-  // 在当前对象上监听 `request` 事件
+  // 在当前对象上监听 `request`、`error` 等事件
   listen() {
     this.on('request', this.callback());
+    if (!this.getListeners('error').length) this.on('error', this.onerror);
   }
 
   /**
@@ -53,8 +58,6 @@ export default class Application extends EventEmitter {
   callback() {
     // 对中间件数组进行组合成串行函数，依次执行
     const fn = compose(this.middleware);
-    if (!this.getListeners('error').length) this.on('error', this.onerror);
-
     return (req: Request, lastMiddleware: middlewareFunction) => {
       const ctx = this.createContext(req);
       return this.handleRequest(ctx, fn, lastMiddleware);
@@ -70,9 +73,7 @@ export default class Application extends EventEmitter {
   handleRequest(ctx, fnMiddleware, lastMiddleware: middlewareFunction) {
     const response = ctx.response;
     response.statusCode = 404;
-    return fnMiddleware(ctx)
-      .then(lastMiddleware)
-      .catch(this.onerror);
+    return fnMiddleware(ctx, lastMiddleware).catch(this.onerror);
   }
 
   /**
@@ -104,14 +105,14 @@ export default class Application extends EventEmitter {
   onerror(err) {
     invariant(err instanceof Error, `non-error thrown: ${err}`);
 
-    if (404 == err.status || err.expose) return;
+    if (404 === err.status) return;
 
     const msg = err.stack || err.toString();
-    console.error();
-    console.error(msg.replace(/^/gm, '  '));
-    console.error();
 
-    // 触发error事件
-    this.emit('error', err);
+    // do not console error when using jest for test
+    console.warn(`[domain: ${this.domain}]`, msg.replace(/^/gm, '  '));
+
+    // 触发客户端的 error 事件
+    this.client.emit('error', err);
   }
 }
