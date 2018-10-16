@@ -50,7 +50,7 @@ describe('[Application] 事件 - error 事件', () => {
     app.emit('error', new Error('inner error'));
   });
   test('app 支持绑定自定义 error 监听事件，需要手动 listen', done => {
-      const app = new Application({ autoListen: false});
+    const app = new Application({ autoListen: false });
     let occur = 0;
     app.on('error', err => {
       expect(err).toBeInstanceOf(Error);
@@ -94,7 +94,7 @@ describe('[Application] 事件 - error 事件', () => {
 
     const err = new Error('inner error');
     err.stack = null; // 让 stack 失效
-    app.emit('error',err);
+    app.emit('error', err);
     setTimeout(() => {
       expect(occur).toBe(1);
       done(); // end test case
@@ -109,7 +109,7 @@ describe('[Application] 中间件 - use 中间件', () => {
     app = new Application();
     client = app.client;
   });
-  test('不使用中间件，则返回 404 状态', () => {
+  test('不使用中间件，则返回 404 状态', done => {
     (client as any)
       .get('/users/jscon', 'TEXT')
       .then(res => {
@@ -119,15 +119,16 @@ describe('[Application] 中间件 - use 中间件', () => {
           type: 'JSON',
           body: {}
         });
+        done();
       })
       .catch(err => {
         console.log(err);
+        done();
       });
   });
-  test('使用单个中间件', () => {
-    app.use(async (ctx: any, next) => {
+  test('使用单个中间件', done => {
+    app.use((ctx: any, next) => {
       // console.log(ctx.request.toJSON());
-
       const req = ctx.request;
       expect(req.method).toBe('GET');
       expect(req.type).toBe('JSON');
@@ -135,7 +136,7 @@ describe('[Application] 中间件 - use 中间件', () => {
 
       ctx.response.status = 200;
       ctx.response.body = { hello: 'world' };
-      await next();
+      // return next();
     });
 
     (client as any)
@@ -147,16 +148,17 @@ describe('[Application] 中间件 - use 中间件', () => {
           type: 'JSON',
           body: { hello: 'world' }
         });
+        done();
       })
       .catch(err => {
         console.log(err);
+        done();
       });
   });
 
-  test('使用 2 个中间件的情况', () => {
+  test('使用 2 个中间件的情况', done => {
     app.use(async (ctx: any, next) => {
       // console.log(ctx.request.toJSON());
-
       const req = ctx.request;
       expect(req.method).toBe('GET');
       expect(req.type).toBe('JSON');
@@ -189,9 +191,54 @@ describe('[Application] 中间件 - use 中间件', () => {
           type: 'JSON',
           body: { msg: 'inner error' }
         });
+        done();
       })
       .catch(err => {
         console.log(err);
+        done();
+      });
+  });
+
+  test('使用 2 个中间件的情况，如果第一个中间件不使用 next，则直接中止', done => {
+    app.use(async (ctx: any, next) => {
+      // console.log(ctx.request.toJSON());
+      const req = ctx.request;
+      expect(req.method).toBe('GET');
+      expect(req.type).toBe('JSON');
+      expect(req.url).toBe(`//${app.domain}/users/jscon`);
+
+      ctx.response.status = 200;
+      ctx.response.body = { hello: 'world' };
+      // await next();
+    });
+
+    app.use(async (ctx: any, next) => {
+      // console.log(ctx.request.toJSON());
+
+      const req = ctx.request;
+      expect(req.method).toBe('GET');
+      expect(req.type).toBe('JSON');
+      expect(req.url).toBe(`//${app.domain}/users/jscon`);
+
+      ctx.response.status = 500;
+      ctx.response.body = { msg: 'inner error' };
+      await next();
+    });
+
+    (client as any)
+      .get('/users/jscon')
+      .then(res => {
+        expect(res).toEqual({
+          status: 200,
+          statusText: 'OK',
+          type: 'JSON',
+          body: { hello: 'world' }
+        });
+        done();
+      })
+      .catch(err => {
+        console.log(err);
+        done();
       });
   });
 });
@@ -203,7 +250,7 @@ describe('[Application] 中间件 - 路由功能（并发隔离）', () => {
     app = new Application();
     client = app.client;
   });
-  test('单个中间件情况', () => {
+  test('单个中间件情况', done => {
     app.use(async (ctx: any, next) => {
       const req = ctx.request;
       expect(req.method).toBe('GET');
@@ -262,13 +309,15 @@ describe('[Application] 中间件 - 路由功能（并发隔离）', () => {
           type: 'JSON',
           body: { hello: 'anonymity' }
         });
+        done();
       })
       .catch(err => {
         console.log(err);
+        done();
       });
   });
 
-  test('使用 2 个中间件的情况', () => {
+  test('使用 2 个中间件的情况', done => {
     app.use(async (ctx: any, next) => {
       const req = ctx.request;
       expect(req.method).toBe('GET');
@@ -348,9 +397,11 @@ describe('[Application] 中间件 - 路由功能（并发隔离）', () => {
           type: 'JSON',
           body: { msg: 'anonymity' }
         });
+        done();
       })
       .catch(err => {
         console.log(err);
+        done();
       });
   });
 });

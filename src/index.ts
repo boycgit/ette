@@ -36,14 +36,14 @@ export default class Application extends EventEmitter {
     return this._client;
   }
 
-  use(fn: middlewareFunction) {
+  use = (fn: middlewareFunction) => {
     invariant(typeof fn === 'function', 'middleware must be a function!');
     this.middleware.push(fn);
     return this;
   }
 
   // 在当前对象上监听 `request`、`error` 等事件
-  listen() {
+  listen = () => {
     this.on('request', this.callback());
     if (!this.getListeners('error').length) this.on('error', this.onerror);
   }
@@ -55,7 +55,7 @@ export default class Application extends EventEmitter {
    * @return {Function}
    * @api public
    */
-  callback() {
+  callback = () => {
     // 对中间件数组进行组合成串行函数，依次执行
     const fn = compose(this.middleware);
     return (req: Request, lastMiddleware: middlewareFunction) => {
@@ -70,10 +70,14 @@ export default class Application extends EventEmitter {
    * @api private
    */
 
-  handleRequest(ctx, fnMiddleware, lastMiddleware: middlewareFunction) {
+  handleRequest = (ctx, fnMiddleware, lastMiddleware: middlewareFunction) => {
     const response = ctx.response;
     response.statusCode = 404;
-    return fnMiddleware(ctx, lastMiddleware).catch(this.onerror);
+    return fnMiddleware(ctx)
+      .then(() => {
+        return lastMiddleware(ctx);
+      })
+      .catch(this.onerror);
   }
 
   /**
@@ -83,7 +87,7 @@ export default class Application extends EventEmitter {
    * @returns
    * @memberof Application
    */
-  createContext(req: Request) {
+  createContext = (req: Request) => {
     const context = Object.create(this.context);
     const request = (context.request = Object.create(req));
     const response = (context.response = Object.create(this.response));
@@ -102,7 +106,7 @@ export default class Application extends EventEmitter {
    * @api private
    */
 
-  onerror(err) {
+  onerror = err => {
     invariant(err instanceof Error, `non-error thrown: ${err}`);
 
     if (404 === err.status) return;

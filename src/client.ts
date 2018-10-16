@@ -35,7 +35,7 @@ METHODS_LOWERCASE.forEach(function(methodName) {
       this.app.emit('request', request, ctx => {
         const res =
           (ctx && ctx.response) ||
-          new Response({ body: { msg: 'ctx.response is not exist'} });
+          new Response({ body: { msg: 'ctx.response is not exist' } });
         resolve(res.toJSON());
       });
     });
