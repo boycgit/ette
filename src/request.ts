@@ -1,7 +1,12 @@
 // test https://runkit.com/boycgit/ette
 
 import URLParse = require('url-parse'); // 引入命名空间
-import { only, CONTENT_TYPE, HTTP_METHOD, invariant } from './lib';
+import {
+  only,
+  CONTENT_TYPE,
+  HTTP_METHOD,
+  invariant
+} from './lib';
 const Url = require('url-parse');
 const stringify = Url.qs.stringify;
 const parser = Url.qs.parse;
@@ -11,15 +16,17 @@ interface RequestConfig {
   url?: string;
   method?: HTTP_METHOD;
   type?: CONTENT_TYPE;
+  data?: any;
 }
 
 export default class Request {
   parsed: URLParse;
   _method: HTTP_METHOD;
   _type: CONTENT_TYPE;
+  _data: any;
 
   constructor(config?: RequestConfig) {
-    const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.JSON } =
+    const { url = '', method = HTTP_METHOD.GET, type = CONTENT_TYPE.JSON, data = undefined } =
       config || {};
 
     // 为了方便统一，需要将输入的 url 的 protocol 删除掉
@@ -37,6 +44,7 @@ export default class Request {
       `request content type: ${typeName} is invalid`
     );
     this._type = typeName;
+    this._data = data;
   }
 
   get method() {
@@ -63,6 +71,13 @@ export default class Request {
       `request content type: ${typeName} is invalid`
     );
     this._type = typeName;
+  }
+
+  get data() {
+    return this._data;
+  }
+  set data(val: any) {
+    this._data = val;
   }
 
   get url(): string {
@@ -119,6 +134,6 @@ export default class Request {
   }
 
   toJSON() {
-    return only(this, ['method', 'url', 'type']);
+    return only(this, ['method', 'url', 'type', 'data']);
   }
 }

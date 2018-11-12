@@ -90,3 +90,8 @@ export function getByteLen(body: string | Buffer): number {
   }
   return length;
 }
+
+//  see https://30secondsofcode.org/string#capitalize
+export const capitalize = ([first, ...rest], lowerRest = false) =>
+  first.toUpperCase() +
+  (lowerRest ? rest.join('').toLowerCase() : rest.join(''));

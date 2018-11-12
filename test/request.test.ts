@@ -82,6 +82,17 @@ describe('[Request] 属性 - 更改各种属性', () => {
     }).toThrow();
   });
 
+  test(`更改 data 属性`, () => {
+    METHODS_LOWERCASE.forEach(method => {
+      req = new Request({ method: method as HTTP_METHOD});
+      expect(req.data).toBeUndefined();
+    });
+    const randomName = chance.string({ length: 8 }).toUpperCase();
+
+    req.data = { name: randomName};
+    expect(req.data).toEqual({ name: randomName });
+  });
+
   test(`更改 type 属性`, () => {
     CONTENT_TYPE_LOWERCASE.forEach(type => {
       req = new Request({ type: type as CONTENT_TYPE });

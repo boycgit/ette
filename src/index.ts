@@ -1,10 +1,15 @@
 import compose, { middlewareFunction } from './compose';
-import { uuid, invariant } from './lib';
+import { uuid, invariant, HTTP_METHOD, capitalize } from './lib';
 import Request from './request';
 import Response from './response';
 import Client from './client';
+import {
+  eventNameStandardize,
+  MESSAGE_TYPE,
+  SubscribeConfig
+} from './subscribe';
 
-const EventEmitter = require('wolfy87-eventemitter');
+import EventEmitter = require('wolfy87-eventemitter');
 interface AppConfig {
   domain?: string;
   autoListen?: boolean;
@@ -17,6 +22,7 @@ export default class Application extends EventEmitter {
   request: Request;
   response: Response;
   _client: Client;
+  _subs: Map<string, SubscribeConfig>;
 
   constructor(config?: AppConfig) {
     super();
@@ -26,6 +32,8 @@ export default class Application extends EventEmitter {
     this.context = {};
     this.response = new Response();
     this._client = new Client(this);
+
+    this._subs = new Map();
 
     if (autoListen) {
       this.listen(); // 默认开启监听
@@ -40,13 +48,36 @@ export default class Application extends EventEmitter {
     invariant(typeof fn === 'function', 'middleware must be a function!');
     this.middleware.push(fn);
     return this;
-  }
+  };
 
   // 在当前对象上监听 `request`、`error` 等事件
   listen = () => {
     this.on('request', this.callback());
     if (!this.getListeners('error').length) this.on('error', this.onerror);
+  };
+
+  // 注册针对某个路径的监听器，注意针对某个 subscribe 只能有一项配置项
+  subscribe(path: string, config: SubscribeConfig = {}) {
+    if (!!path && !!config) {
+      this._subs.set(path, config);
+    }
   }
+
+  hasSubscribe(path): boolean {
+    return !!this._subs.get(path);
+  }
+
+  unsubscribe(path: string) {
+    return this._subs.delete(path);
+  }
+
+  // 服务端针对某个路径发送消息
+  send = (path: string, message: any) => {
+    this.client.emit(eventNameStandardize(path), {
+      type: MESSAGE_TYPE.MESSAGE,
+      data: message
+    });
+  };
 
   /**
    * Return a request handler callback
@@ -60,13 +91,33 @@ export default class Application extends EventEmitter {
     const fn = compose(this.middleware);
     return (req: Request, lastMiddleware: middlewareFunction) => {
       const ctx = this.createContext(req);
-      return this.handleRequest(ctx, fn, lastMiddleware);
+
+      let middles = fn;
+      const config = this._subs.get(req.path);
+
+      // 如果是 subscribe 场景，提取出 config 中的 `onMessage` 等具体函数
+      if (
+        req.method === HTTP_METHOD.SUBSCRIBE &&
+        config &&
+        req.data &&
+        req.data.type
+      ) {
+        const type = req.data.type;
+        const upperStr = type.toUpperCase();
+        const methodName = `on${capitalize(upperStr as any, true)}`;
+        if (typeof config[methodName] === 'function') {
+          middles = compose([fn, config[methodName]]);
+        }
+      }
+      return this.handleRequest(ctx, middles, lastMiddleware);
     };
-  }
+  };
 
   /**
    * Handle request in callback.
    * generally  call lastMiddleware function to send response，please refer `client.ts` for more detail
+   * 如果是 subscribe 请求，则 response 请求是有规范的
+   *
    * @api private
    */
 
@@ -78,7 +129,7 @@ export default class Application extends EventEmitter {
         return lastMiddleware(ctx);
       })
       .catch(this.onerror);
-  }
+  };
 
   /**
    * Initialize a new context per request
@@ -97,7 +148,7 @@ export default class Application extends EventEmitter {
     request.response = response;
     response.request = request;
     return context;
-  }
+  };
 
   /**
    * Default error handler.
@@ -118,5 +169,5 @@ export default class Application extends EventEmitter {
 
     // 触发客户端的 error 事件
     this.client.emit('error', err);
-  }
+  };
 }

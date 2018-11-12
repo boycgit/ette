@@ -20,12 +20,13 @@ describe('[Client] 方法 - verb()', () => {
 
   METHODS_LOWERCASE.forEach(method => {
     test(`验证 client.${method} 方法`, () => {
-      client[method]('/users/jscon', 'JSON');
+      client[method]('/users/jscon', {}, 'JSON');
       expect(Request).toHaveBeenCalledTimes(1);
       const reqestConfig = (Request as any).mock.calls[0][0];
       expect(reqestConfig.url).toBe('/users/jscon');
       expect(reqestConfig.method).toBe(method.toUpperCase());
       expect(reqestConfig.type).toBe('JSON');
+      expect(reqestConfig.data).toEqual({});
     });
   });
 });
