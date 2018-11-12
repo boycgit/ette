@@ -1,30 +1,18 @@
-import Response from './response';
 import Client from './client';
-import Application from './index';
+import { middlewareFunction } from './compose';
 import { capitalize, invariant } from './lib';
 
 export enum MESSAGE_TYPE {
-  OPEN = 'OPEN', // connect success
+  // OPEN = 'OPEN', // connect success，暂时没用到
   MESSAGE = 'MESSAGE', // normal send message
-  ERROR = 'ERROR', // occur error
-  CLOSE = 'CLOSE' // close connection
+  // ERROR = 'ERROR', // occur error，暂时没用到
+  // CLOSE = 'CLOSE' // close connection，暂时没用到
 }
 
-export enum SUBSCRIBE_STATUS {
-  CLOSED = 'CLOSED',
-  CONNECTED = 'CONNECTED'
-}
-
-export type SubscribeCallback = (
-  res: Response,
-  sender: Client | Application
-) => void;
+export type ClientMessageCallback = (data: any) => void;
 
 export interface SubscribeConfig {
-  onOpen?: SubscribeCallback;
-  onMessage?: SubscribeCallback;
-  onError?: SubscribeCallback;
-  onClose?: SubscribeCallback;
+  onMessage?: ClientMessageCallback | middlewareFunction;
 }
 
 export const eventNameStandardize = path => `subscribe:${path}`;
@@ -55,7 +43,10 @@ export class ClientSender {
   }
   //  类似 ws.send， 相当于出发远程服务器的事件监听器
   send(message: any) {
-    invariant(this.connected, `current client sender is disconnected (path: ${this.path})`);
+    invariant(
+      this.connected,
+      `current client sender is disconnected (path: ${this.path})`
+    );
     //  相当于调用本地的 subscribe 请求（类似普通的 get 请求，只不过有 type 和 data）
     return (this.client as any).subscribe(this.path, {
       type: MESSAGE_TYPE.MESSAGE,

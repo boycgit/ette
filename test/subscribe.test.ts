@@ -1,9 +1,5 @@
 import Application from '../src/index';
-// import Response from '../src/response';
-// import Client from '../src/client';
 import { SubscribeManager, ClientSender, MESSAGE_TYPE } from '../src/subscribe';
-// import * as Chance from 'chance';
-// const chance = new Chance();
 
 describe('[Subscribe] 功能 - 订阅功能', () => {
   let app, client;
