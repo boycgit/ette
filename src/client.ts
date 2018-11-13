@@ -3,7 +3,7 @@ import Request from './request';
 import Response from './response';
 import { SubscribeConfig, SubscribeManager, MESSAGE_TYPE } from './subscribe';
 import { HTTP_METHOD, CONTENT_TYPE, invariant } from './lib';
-import EventEmitter = require('wolfy87-eventemitter');
+const EventEmitter = require('wolfy87-eventemitter');
 
 const METHODS_LOWERCASE: string[] = Object.keys(HTTP_METHOD).map(k =>
   HTTP_METHOD[k as any].toLowerCase()

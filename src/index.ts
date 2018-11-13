@@ -9,7 +9,7 @@ import {
   SubscribeConfig
 } from './subscribe';
 
-import EventEmitter = require('wolfy87-eventemitter');
+const EventEmitter = require('wolfy87-eventemitter');
 interface AppConfig {
   domain?: string;
   autoListen?: boolean;
