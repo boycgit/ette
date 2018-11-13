@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/boycgit/ette/compare/v0.2.2...v0.3.0) (2018-11-13)
+
+
+### Features
+
+* **功能新增:** 新增类似 websocket 的 subscribe/send 功能；并完善相应的单元测试 ([1469200](https://github.com/boycgit/ette/commit/1469200))
+
+
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://github.com/boycgit/ette/compare/v0.2.1...v0.2.2) (2018-10-16)
 
