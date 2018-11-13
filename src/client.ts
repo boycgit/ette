@@ -49,7 +49,7 @@ METHODS_LOWERCASE.forEach(function(methodName) {
     // 如果是创建订阅，则需要进行订阅绑定，此时的 data 则当成 SubscribeConfig
     // 注意此时的 data.type 不在 message_type 里
     // 普通的 subscribe 请求是和原来的 get 处理过程一致的；
-    if (request.method === HTTP_METHOD.SUBSCRIBE && !MESSAGE_TYPE[data.type]) {
+    if (request.method === HTTP_METHOD.SUBSCRIBE && !MESSAGE_TYPE[data && data.type || '']) {
       return this.manager.add(path, data);
     }
 

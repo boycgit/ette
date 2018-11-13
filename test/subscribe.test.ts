@@ -1,5 +1,5 @@
 import Application from '../src/index';
-import { SubscribeManager, ClientSender, MESSAGE_TYPE } from '../src/subscribe';
+import { SubscribeManager, ClientSender } from '../src/subscribe';
 
 describe('[Subscribe] 功能 - 订阅功能', () => {
   let app, client;
@@ -523,7 +523,7 @@ describe('[Subscribe] unsubscribe - app 解除订阅', () => {
 
   test('可以重复解除订阅', done => {
     const routePath = '/click/tree';
-    const sender = (client as any).subscribe(routePath, {});
+    const sender = (client as any).subscribe(routePath);
     expect(sender).toBeInstanceOf(ClientSender);
 
     let count = 0;
