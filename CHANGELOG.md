@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.3"></a>
+## [0.3.3](https://github.com/boycgit/ette/compare/v0.3.2...v0.3.3) (2019-01-18)
+
+
+### Features
+
+* **功能改进:** 增加导出的类型种类（诸如 Request、Response、IContext），方便第三方库引用 ([087d842](https://github.com/boycgit/ette/commit/087d842))
+
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/boycgit/ette/compare/v0.3.1...v0.3.2) (2018-11-13)
 
