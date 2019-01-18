@@ -1,5 +1,5 @@
-import Client from '../src/client';
-import Request from '../src/request';
+import {Client} from '../src/client';
+import {Request} from '../src/request';
 import Application from '../src/index';
 import { HTTP_METHOD } from '../src/lib';
 

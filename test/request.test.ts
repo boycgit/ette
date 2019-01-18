@@ -1,4 +1,4 @@
-import Request from '../src/request';
+import {Request} from '../src/request';
 import { HTTP_METHOD, CONTENT_TYPE } from '../src/lib';
 import * as Chance from 'chance';
 const chance = new Chance();

@@ -1,4 +1,4 @@
-import Response from '../src/response';
+import {Response} from '../src/response';
 import * as HttpStatus from 'http-status-codes';
 import * as Chance from 'chance';
 const chance = new Chance();

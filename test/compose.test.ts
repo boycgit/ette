@@ -1,6 +1,6 @@
 // come from https://github.com/koajs/compose/blob/master/test/test.js
 
-import compose, { middlewareFunction } from '../src/compose';
+import { compose, middlewareFunction } from '../src/compose';
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms || 1));

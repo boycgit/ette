@@ -1,7 +1,7 @@
-import Client from '../src/client';
+import {Client} from '../src/client';
 import Application from '../src/index';
 import { HTTP_METHOD } from '../src/lib';
-import Response from '../src/response';
+import {Response} from '../src/response';
 
 const METHODS_LOWERCASE: string[] = Object.keys(HTTP_METHOD).map(k =>
   HTTP_METHOD[k as any].toLowerCase()

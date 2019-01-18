@@ -1,8 +1,8 @@
-import compose, { middlewareFunction } from './compose';
+import { compose, middlewareFunction } from './compose';
 import { uuid, invariant, HTTP_METHOD, capitalize } from './lib';
-import Request from './request';
-import Response from './response';
-import Client from './client';
+import { Request } from './request';
+import { Response } from './response';
+import { Client } from './client';
 import {
   eventNameStandardize,
   MESSAGE_TYPE,
@@ -13,6 +13,20 @@ const EventEmitter = require('wolfy87-eventemitter');
 interface AppConfig {
   domain?: string;
   autoListen?: boolean;
+}
+
+export * from './request';
+export * from './Response';
+export * from './client';
+export * from './compose';
+
+export interface IContext {
+  app: Application;
+  req: Request;
+  res: Response;
+  request: Request;
+  response: Response;
+  [propName: string]: any;
 }
 
 export default class Application extends EventEmitter {
@@ -121,9 +135,13 @@ export default class Application extends EventEmitter {
    * @api private
    */
 
-  handleRequest = (ctx, fnMiddleware, lastMiddleware: middlewareFunction) => {
+  handleRequest = (
+    ctx: IContext,
+    fnMiddleware,
+    lastMiddleware: middlewareFunction
+  ) => {
     const response = ctx.response;
-    response.statusCode = 404;
+    response.status = 404;
     return fnMiddleware(ctx)
       .then(() => {
         return lastMiddleware(ctx);
@@ -138,7 +156,7 @@ export default class Application extends EventEmitter {
    * @returns
    * @memberof Application
    */
-  createContext = (req: Request) => {
+  createContext = (req: Request): IContext => {
     const context = Object.create(this.context);
     const request = (context.request = Object.create(req));
     const response = (context.response = Object.create(this.response));

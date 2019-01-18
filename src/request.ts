@@ -12,14 +12,14 @@ const stringify = Url.qs.stringify;
 const parser = Url.qs.parse;
 
 const regProtocol = /^http(s)?\:/g;
-interface RequestConfig {
+export interface RequestConfig {
   url?: string;
   method?: HTTP_METHOD;
   type?: CONTENT_TYPE;
   data?: any;
 }
 
-export default class Request {
+export class Request {
   parsed: URLParse;
   _method: HTTP_METHOD;
   _type: CONTENT_TYPE;

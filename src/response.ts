@@ -5,12 +5,12 @@ const HttpStatus = require('http-status-codes');
 
 const getStatusText = HttpStatus.getStatusText;
 
-interface ResponseConfig {
+export interface ResponseConfig {
   status?: number;
   body?: any;
 }
 
-export default class Response {
+export class Response {
   code: number;
   _body: any;
   length: number;

@@ -1,6 +1,6 @@
 import Application from '../src/index';
-import Response from '../src/response';
-import Client from '../src/client';
+import {Response} from '../src/response';
+import {Client} from '../src/client';
 import * as Chance from 'chance';
 const chance = new Chance();
 

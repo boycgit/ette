@@ -9,13 +9,11 @@
  */
 
 export type middlewareFunction = (
-  ctx?: object,
+  ctx?: any,
   next?: middlewareFunction
 ) => Promise<any>;
 
-export default function compose(
-  middleware: middlewareFunction[]
-) {
+export function compose(middleware: middlewareFunction[]) {
   if (!Array.isArray(middleware))
     throw new TypeError('Middleware stack must be an array!');
   for (const fn of middleware) {
@@ -29,10 +27,7 @@ export default function compose(
    * @api public
    */
 
-  return function(
-    context?: object,
-    next?: middlewareFunction
-  ): Promise<any> {
+  return function (context?: any, next?: middlewareFunction): Promise<any> {
     // last called middleware #
     let index = -1;
     return dispatch(0);
