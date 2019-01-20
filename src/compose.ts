@@ -11,7 +11,7 @@
 export type middlewareFunction = (
   ctx?: any,
   next?: middlewareFunction
-) => Promise<any>;
+) => Promise<any> | void;
 
 export function compose(middleware: middlewareFunction[]) {
   if (!Array.isArray(middleware))
