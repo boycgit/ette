@@ -1,5 +1,11 @@
 import { compose, middlewareFunction } from './compose';
-import { uuid, invariant, HTTP_METHOD, capitalize } from './lib';
+import {
+  uuid,
+  invariant,
+  HTTP_METHOD,
+  capitalize,
+  createInstanceofPredicate
+} from './lib';
 import { Request } from './request';
 import { Response } from './response';
 import { Client } from './client';
@@ -189,3 +195,9 @@ export default class Application extends EventEmitter {
     this.client.emit('error', err);
   };
 }
+
+// 判断对象实例
+export const isEtteApplication = createInstanceofPredicate(
+  'Application',
+  Application
+);

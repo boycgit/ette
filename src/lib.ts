@@ -95,3 +95,16 @@ export function getByteLen(body: string | Buffer): number {
 export const capitalize = ([first, ...rest], lowerRest = false) =>
   first.toUpperCase() +
   (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
+
+
+export function isObject(value) {
+  return value !== null && typeof value === "object";
+}
+export function createInstanceofPredicate(name, clazz) {
+  var propName = "isEtte" + name;
+  clazz.prototype[propName] = true;
+  return function (x) {
+    return isObject(x) && x[propName] === true;
+  };
+}
+

@@ -1,20 +1,28 @@
-import Application from '../src/index';
-import {Response} from '../src/response';
-import {Client} from '../src/client';
+import Application, { isEtteApplication } from '../src/index';
+import { Response } from '../src/response';
+import { Client } from '../src/client';
 import * as Chance from 'chance';
 const chance = new Chance();
 
 describe('[Application] 构造函数 - 构造函数', () => {
+  let app;
+  beforeEach(() => {
+    expect(isEtteApplication(app)).toBeFalsy();
+  });
+  afterEach(() => {
+    expect(isEtteApplication(app)).toBeTruthy();
+    app = null;
+  });
   test('创建默认的 App 实例，会生成随机 domain（长度是 8 ）', () => {
-    const app = new Application();
+    app = new Application();
     expect(app.domain.length).toBe(8);
     expect(app.middleware.length).toBe(0);
     expect(app.context).toEqual({});
     expect(app.response).toBeInstanceOf(Response);
     expect(app.client).toBeInstanceOf(Client);
   });
-  test('创建默认的 App 实例，会生成随机 domain（长度是 8 ）', () => {
-    const app = new Application({});
+  test('创建默认的 App，支持传入空对象', () => {
+    app = new Application({});
     expect(app.domain.length).toBe(8);
     expect(app.middleware.length).toBe(0);
     expect(app.context).toEqual({});
@@ -22,8 +30,8 @@ describe('[Application] 构造函数 - 构造函数', () => {
     expect(app.client).toBeInstanceOf(Client);
   });
 
-  test('创建默认的 App 实例，会生成随机 domain（长度是 8 ）', () => {
-    const app = new Application({ domain: 'jscon' });
+  test('创建默认的 App 实例，指定 domain 名称', () => {
+    app = new Application({ domain: 'jscon' });
     expect(app.domain).toBe('jscon');
     expect(app.middleware.length).toBe(0);
     expect(app.context).toEqual({});
