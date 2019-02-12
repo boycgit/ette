@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.6"></a>
+## [0.3.6](https://github.com/boycgit/ette/compare/v0.3.5...v0.3.6) (2019-02-12)
+
+
+### Bug Fixes
+
+* **打包 umd named 配置:** 使用自定义的 umdName ([a0c02d4](https://github.com/boycgit/ette/commit/a0c02d4))
+
+
+
 <a name="0.3.5"></a>
 ## [0.3.5](https://github.com/boycgit/ette/compare/v0.3.4...v0.3.5) (2019-02-12)
 
