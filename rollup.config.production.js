@@ -1,4 +1,5 @@
 var resolve = require('rollup-plugin-node-resolve');
+var commonjs = require('rollup-plugin-commonjs');
 var uglify = require('rollup-plugin-uglify').uglify;
 var terser = require('rollup-plugin-terser').terser;
 var path = require('path');
@@ -9,8 +10,13 @@ const targetName = 'index';
 const umdName = 'Ette';
 
 // 根据配置生成所需要的插件列表
-const getPlugin = function ({ shouldMinified, isES6 }) {
+const getPlugin = function({ shouldMinified, isES6, includeRequiredPackage }) {
   let plugins = [resolve()];
+
+  // 是否将 require 的第三方包打进 bundle，在 umd 模式需要此项
+  if (includeRequiredPackage) {
+    plugins.push(commonjs());
+  }
   if (shouldMinified) {
     plugins.push(isES6 ? terser() : uglify());
   }
@@ -18,7 +24,7 @@ const getPlugin = function ({ shouldMinified, isES6 }) {
 };
 
 // 根据这些配置项生成具体的 rollup 配置项
-const compileConfig = function ({
+const compileConfig = function({
   fromDir,
   outputFileName,
   shouldMinified,
@@ -38,16 +44,20 @@ const compileConfig = function ({
       },
       format === 'umd'
         ? {
-          name: umdName,
-          globals: umdName
-        }
+            name: umdName,
+            globals: umdName
+          }
         : {},
       {
         file: path.join(__dirname, 'dist', outputFileArr.join('.')),
         format
       }
     ),
-    plugins: getPlugin({ shouldMinified, isES6: format === 'es' })
+    plugins: getPlugin({
+      shouldMinified,
+      isES6: format === 'es',
+      includeRequiredPackage: format === 'umd' // 这个也很重要，将第三方包依赖打入 bundle
+    })
   });
 };
 
