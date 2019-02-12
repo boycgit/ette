@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.5"></a>
+## [0.3.5](https://github.com/boycgit/ette/compare/v0.3.4...v0.3.5) (2019-02-12)
+
+
+### Features
+
+* **功能增强:** 通过新增 isEtteApplication 判断函数，替代 instanceof 的判断，增加可靠性； ([d273f36](https://github.com/boycgit/ette/commit/d273f36))
+
+
+
 <a name="0.3.4"></a>
 ## [0.3.4](https://github.com/boycgit/ette/compare/v0.3.3...v0.3.4) (2019-01-20)
 
