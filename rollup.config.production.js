@@ -6,9 +6,7 @@ var pkg = require('./package.json');
 var deps = Object.keys(pkg.dependencies || {});
 
 const targetName = 'index';
-const capitalize = ([first, ...rest], lowerRest = false) =>
-  first.toUpperCase() +
-  (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
+const umdName = 'Ette';
 
 // 根据配置生成所需要的插件列表
 const getPlugin = function ({ shouldMinified, isES6 }) {
@@ -40,8 +38,8 @@ const compileConfig = function ({
       },
       format === 'umd'
         ? {
-          name: capitalize(targetName),
-          globals: capitalize(targetName)
+          name: umdName,
+          globals: umdName
         }
         : {},
       {
