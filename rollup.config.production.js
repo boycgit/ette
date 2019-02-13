@@ -6,12 +6,18 @@ var path = require('path');
 var pkg = require('./package.json');
 var deps = Object.keys(pkg.dependencies || {});
 
-const targetName = 'index';
+// const targetName = 'index';
 const umdName = 'Ette';
 
 // 根据配置生成所需要的插件列表
 const getPlugin = function({ shouldMinified, isES6, includeRequiredPackage }) {
-  let plugins = [resolve()];
+  let plugins = [
+    resolve({
+      preferBuiltins: false,
+      jsnext: true,
+      main: true
+    })
+  ];
 
   // 是否将 require 的第三方包打进 bundle，在 umd 模式需要此项
   if (includeRequiredPackage) {
@@ -25,6 +31,7 @@ const getPlugin = function({ shouldMinified, isES6, includeRequiredPackage }) {
 
 // 根据这些配置项生成具体的 rollup 配置项
 const compileConfig = function({
+  targetName = 'index',
   fromDir,
   outputFileName,
   shouldMinified,
@@ -44,8 +51,7 @@ const compileConfig = function({
       },
       format === 'umd'
         ? {
-            name: umdName,
-            globals: umdName
+            name: umdName
           }
         : {},
       {
@@ -56,27 +62,12 @@ const compileConfig = function({
     plugins: getPlugin({
       shouldMinified,
       isES6: format === 'es',
-      includeRequiredPackage: format === 'umd' // 这个也很重要，将第三方包依赖打入 bundle
+      includeRequiredPackage: format === 'umd' // 这个也很重要，umd 打包时将第三方包依赖打入 bundle
     })
   });
 };
 
 module.exports = [
-  // browser-friendly UMD build
-  compileConfig({
-    fromDir: '.build.cjs',
-    outputFileName: path.parse(pkg.browser).name,
-    shouldMinified: false,
-    format: 'umd'
-  }),
-  // browser-friendly UMD build, minified
-  compileConfig({
-    fromDir: '.build.cjs',
-    outputFileName: path.parse(pkg.browser).name,
-    shouldMinified: true,
-    format: 'umd'
-  }),
-
   // CommonJS (for Node) and ES module (for bundlers) build.
   // (We could have three entries in the configuration array
   // instead of two, but it's quicker to generate multiple
@@ -114,5 +105,22 @@ module.exports = [
     outputFileName: path.parse(pkg.module).name,
     shouldMinified: true,
     format: 'es'
+  }),
+
+  // browser-friendly UMD build
+  compileConfig({
+    fromDir: 'dist',
+    targetName: 'index.cjs',
+    outputFileName: path.parse(pkg.browser).name,
+    shouldMinified: false,
+    format: 'umd'
+  }),
+  // browser-friendly UMD build, minified
+  compileConfig({
+    fromDir: 'dist',
+    targetName: 'index.cjs',
+    outputFileName: path.parse(pkg.browser).name,
+    shouldMinified: true,
+    format: 'umd'
   })
 ];
