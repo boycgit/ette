@@ -106,10 +106,10 @@ export class Request {
     this.parsed.set('pathname', val);
   }
 
-  get query(): object {
+  get query(): Record<string, any> {
     return this.parsed.query;
   }
-  set query(obj: object) {
+  set query(obj: Record<string, any>) {
     this.parsed.set('query', obj);
   }
 

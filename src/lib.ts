@@ -44,7 +44,7 @@ export function uuid(len?: number, radix?: number) {
   return uuid.join('');
 }
 
-export function only(obj: object, keys: string | string[]): object {
+export function only(obj: Record<string, any>, keys: string | string[]): Record<string, any> {
   obj = obj || {};
   if ('string' == typeof keys) keys = keys.split(/ +/);
   return keys.reduce(function(ret, key) {

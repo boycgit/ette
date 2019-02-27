@@ -38,7 +38,7 @@ export interface IContext {
 export default class Application extends EventEmitter {
   domain: string;
   middleware: middlewareFunction[];
-  context: object;
+  context: Record<string, any>;
   request: Request;
   response: Response;
   _client: Client;

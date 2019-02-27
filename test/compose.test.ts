@@ -1,6 +1,7 @@
 // come from https://github.com/koajs/compose/blob/master/test/test.js
 
 import { compose, middlewareFunction } from '../src/compose';
+import { IContext } from '../src/';
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms || 1));
@@ -133,17 +134,17 @@ describe('koa compose', () => {
 
     const stack: middlewareFunction[] = [];
 
-    stack.push(async (ctx2: object, next: middlewareFunction) => {
+    stack.push(async (ctx2: IContext, next: middlewareFunction) => {
       await next();
       expect(ctx2).toEqual(ctx);
     });
 
-    stack.push(async (ctx2: object, next: middlewareFunction) => {
+    stack.push(async (ctx2: IContext, next: middlewareFunction) => {
       await next();
       expect(ctx2).toEqual(ctx);
     });
 
-    stack.push(async (ctx2: object, next: middlewareFunction) => {
+    stack.push(async (ctx2: IContext, next: middlewareFunction) => {
       await next();
       expect(ctx2).toEqual(ctx);
     });
