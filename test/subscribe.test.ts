@@ -407,16 +407,14 @@ describe('[Subscribe] 订阅 - 重复订阅', () => {
 
     app.subscribe('/click/tree', {
       onMessage: () => {
-        count++; 
+        count++;
       }
     });
     app.subscribe('/click/tree', {
       onMessage: () => {
-        count += 2; 
+        count += 2;
       }
     });
-
-
 
     sender1.send(fakeData);
     sender2.send(fakeData);
@@ -462,6 +460,106 @@ describe('[Subscribe] unsubscribe - client 解除订阅', () => {
       expect(count).toBe(1);
       done();
     }, 0);
+  });
+
+  test('client 解除订阅后，app 再发送消息将无法获取', done => {
+    const routePath = '/click/tree';
+
+    let count = 0;
+
+    const sender = (client as any).subscribe(routePath, {
+      onMessage: () => {
+        count++;
+      }
+    });
+    expect(sender).toBeInstanceOf(ClientSender);
+
+    app.send(routePath, 'hello world');
+
+    client.unsubscribe(routePath);
+    app.send(routePath, 'hello world');
+
+    setTimeout(() => {
+      expect(count).toBe(1);
+      done();
+    }, 0);
+  });
+
+  describe('client 解除订阅后，app 再发送消息将无法获取', () => {
+    test('对照组，正常收发信息', done => {
+      const routePath = '/click/tree';
+
+      let count = 0;
+
+      const sender = (client as any).subscribe(routePath, {
+        onMessage: () => {
+          count++;
+        }
+      });
+      expect(sender).toBeInstanceOf(ClientSender);
+
+      app.send(routePath, 'hello world');
+      app.send(routePath, 'hello world');
+
+      setTimeout(() => {
+        expect(count).toBe(2);
+        done();
+      }, 0);
+    });
+
+    test('单路径订阅情况', done => {
+      const routePath = '/click/tree';
+      let count = 0;
+      const sender = (client as any).subscribe(routePath, {
+        onMessage: () => {
+          count++;
+        }
+      });
+      expect(sender).toBeInstanceOf(ClientSender);
+
+      app.send(routePath, 'hello world');
+
+      client.unsubscribe(routePath);
+      app.send(routePath, 'hello world');
+
+      setTimeout(() => {
+        expect(count).toBe(1);
+        done();
+      }, 0);
+    });
+
+    test('多路径订阅情况', done => {
+      const routePath = '/click/tree';
+      const routePathB = '/click/treeB';
+      let count = 0;
+      let countB = 0;
+      const sender = (client as any).subscribe(routePath, {
+        onMessage: () => {
+          count++;
+        }
+      });
+      const senderB = (client as any).subscribe(routePathB, {
+        onMessage: () => {
+          countB++;
+        }
+      });
+
+      expect(sender).toBeInstanceOf(ClientSender);
+      expect(senderB).toBeInstanceOf(ClientSender);
+
+      app.send(routePath, 'hello world');
+      app.send(routePathB, 'hello world');
+
+      client.unsubscribe(routePath);
+      app.send(routePath, 'hello world');
+      app.send(routePathB, 'hello world');
+
+      setTimeout(() => {
+        expect(count).toBe(1);
+        expect(countB).toBe(2);
+        done();
+      }, 0);
+    });
   });
 
   test('可多次调用 unsubscribe 方法', () => {

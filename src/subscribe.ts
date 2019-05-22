@@ -1,10 +1,10 @@
-import {Client} from './client';
+import { Client } from './client';
 import { middlewareFunction } from './compose';
 import { capitalize, invariant } from './lib';
 
 export enum MESSAGE_TYPE {
   // OPEN = 'OPEN', // connect success，暂时没用到
-  MESSAGE = 'MESSAGE', // normal send message
+  MESSAGE = 'MESSAGE' // normal send message
   // ERROR = 'ERROR', // occur error，暂时没用到
   // CLOSE = 'CLOSE' // close connection，暂时没用到
 }
@@ -26,6 +26,7 @@ export class ClientSender {
     this.path = path;
     this.connected = false;
   }
+
   connect(config: SubscribeConfig = {}) {
     // 给客户端绑定事件监听
     this.client.on(eventNameStandardize(this.path), function(ev) {
@@ -40,8 +41,11 @@ export class ClientSender {
   }
   disconnect() {
     this.connected = false;
+
+    // 断开之后，该 client 应该不能接收消息了（在该 client 订阅当前路径的全部 listener 都失效）
+    this.client.removeEvent(eventNameStandardize(this.path));
   }
-  //  类似 ws.send， 相当于出发远程服务器的事件监听器
+  //  类似 ws.send， 相当于触发远程服务器的事件监听器
   send(message: any) {
     invariant(
       this.connected,
