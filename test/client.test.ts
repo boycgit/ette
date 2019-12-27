@@ -1,7 +1,7 @@
-import {Client} from '../src/client';
+import { Client } from '../src/client';
 import Application from '../src/index';
 import { HTTP_METHOD } from '../src/lib';
-import {Response} from '../src/response';
+import { Response } from '../src/response';
 
 const METHODS_LOWERCASE: string[] = Object.keys(HTTP_METHOD).map(k =>
   HTTP_METHOD[k as any].toLowerCase()
@@ -36,7 +36,7 @@ describe('[Client] 方法 - 检查 verb() 返回值', () => {
 
   METHODS_LOWERCASE.forEach(method => {
     // subscribe 的功能单独测试
-    if(method !== 'subscribe') {
+    if (method !== 'subscribe') {
       test(`支持 client.${method} 方法`, () => {
         app.removeEvent('request'); // 先移除内置的 request 事件监听器
         app.on('request', (req, lastMiddleware) => {
@@ -45,23 +45,25 @@ describe('[Client] 方法 - 检查 verb() 返回值', () => {
           expect(req.url).toBe(`//${app.domain}/users/jscon`);
           expect(req.type).toBe('TEXT');
           expect(req.method).toBe(method.toUpperCase());
-  
+
           // 模拟中间件形态
           const fakeResponse = {
-            response: new Response({ status: 200 , body: 'hello world'})
+            response: new Response({ status: 200, body: 'hello world' })
           };
           new Promise(function(resolve) {
             resolve(fakeResponse);
           }).then(lastMiddleware);
         });
-  
-        client[method]('/users/jscon', {}, 'text').then(res => {
-          expect(res.status).toBe(200);
-          expect(res.type).toBe('TEXT');
-          expect(res.body).toBe('hello world');
-        }).catch(err => {
-          console.log(err);
-        });;
+
+        client[method]('/users/jscon', {}, 'text')
+          .then(res => {
+            expect(res.status).toBe(200);
+            expect(res.type).toBe('TEXT');
+            expect(res.body).toBe('hello world');
+          })
+          .catch(err => {
+            console.log(err);
+          });
       });
     }
   });
@@ -81,11 +83,52 @@ describe('[Client] 方法 - 检查 verb() 返回值', () => {
       }).then(lastMiddleware);
     });
 
-    client.get('/users/jscon',{},  'text').then(res => {
-      expect(res.status).toBe(404);
-      expect(res.type).toBe('JSON');
-    }).catch(err=>{
-      console.log(err);
-    });
+    client
+      .get('/users/jscon', {}, 'text')
+      .then(res => {
+        expect(res.status).toBe(404);
+        expect(res.type).toBe('JSON');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  });
+});
+
+describe('[Client] 方法 - 检查 request.data、query属性返回值', () => {
+  let app, client;
+
+  beforeEach(() => {
+    app = new Application();
+    client = new Client(app);
+  });
+
+  METHODS_LOWERCASE.forEach(method => {
+    // subscribe 的功能单独测试
+    if (method !== 'subscribe') {
+      test(`支持同时提取 client.${method} 方法中的 query、data 属性 `, () => {
+        app.removeEvent('request'); // 先移除内置的 request 事件监听器
+        app.on('request', (req, lastMiddleware) => {
+          const { query, data } = req;
+          expect(query.from).toBe('foo');
+          expect(data).toEqual({ bar: 'baz' });
+
+          // 模拟中间件形态
+          const fakeResponse = {
+            response: new Response({ status: 200, body: 'hello world' })
+          };
+          new Promise(function(resolve) {
+            resolve(fakeResponse);
+          }).then(lastMiddleware);
+        });
+
+        client[method]('/users/jscon?from=foo', { bar: 'baz' }, 'text')
+          .then(res => {
+            expect(res.status).toBe(200);
+            expect(res.type).toBe('TEXT');
+            expect(res.body).toBe('hello world');
+          })
+      });
+    }
   });
 });
